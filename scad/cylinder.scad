@@ -4,7 +4,7 @@ module chamber(angle=0) {
     cu_w = chamber_d - w_thickness;  //reduce overlap
     jswhalf = jam_slot_width/2.0;
     jswallw = jam_slot_width + 2.0 * w_thickness;
-    jswallh = jswallw / 2;
+    js_support_offset = (toroid_r + jam_slot_support_len +  jam_slot_width * sqrt(2)/2);
 
     rotate(angle + 90) difference() {
 		union() {
@@ -20,13 +20,19 @@ module chamber(angle=0) {
 							cube([jswallw, jswhalf, cyl_len], center=true);
 					}
                     // remove the channel for fixing any dart jams
-					translate([-jswhalf, -dart_r -jswallh, -(toroid_r + jam_slot_support_len)])
-						cube ([jam_slot_width, jam_slot_width, cyl_len]);
+                    translate([0, -dart_r, cyl_len/2 - js_support_offset])
+                        union() {
+                            cube ([jam_slot_width, jam_slot_width, cyl_len], center=true);
+                            //pointy top to prevent the need for support
+                            translate([0, 0, cyl_len/2])
+                                resize([jam_slot_width, 0, 0]) rotate([0, 45, 0])
+                                    cube (jam_slot_width, center=true);
+                        }
 				}
 				// remove the part where the dart will go
 				cylinder(h=cyl_len, r=dart_r);
 			}
-			// add bottom dart stopper
+			// add bottom dart stopper so dart doesn't fall out the back
 			difference(){
 				cylinder(h=w_thickness *2, r=dart_r);
 				// remove slot for pusher
