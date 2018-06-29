@@ -1,28 +1,45 @@
 $fn = 128;
-//dart_d = 19;  // elite dart diameter
-//d_len = 95;   // elite dart length
-dart_d = 13;  // elite dart diameter
-d_len = 72;   // elite dart length
-w_thickness = 1.6;  //multiples of 3d printer head diameter -> 4 * 0.4
-chamber_count = 28;
-//chamber_count = 10;
-jam_slot_width = 5.6;
-jam_slot_support_len = 8;
-race1 = 10;  //bottom edge of bearing race position.
+clearance = 0.2;        // wherever parts meet
+print_head_width = 0.4; // 3d printer head diameter
+
+//spec_dart_d = 19;     // mega dart diameter
+//d_len = 95;           // mega dart length
+spec_dart_d = 13;       // spec elite dart diameter
+d_len = 72;             // elite dart length
+min_chamber_count = 15; // minimum chambers per cylinder
+desired_cuff_d = 98;    // minimum cuff diameter in mm
+jam_slot_width = 5.6;   // multiple of head diameter
+race1 = 10;             // bottom edge of bearing race position.
 bearing_w = 4 + 1;
 bearing_d = 10;
 bearing_inner_d = 5;
 ratchet_angle = -20;
-clearance = 0.2;  // wherever plastic meets plastic
 
 brushless_motor_d = 22;
 brushless_motor_h = 12;
-flywheel_thickness = w_thickness * 2;
 brushless_motor_screw_d = 5;
 brushless_motor_screw_mount_r = 19/2;
 
 // calculated constants
+w_thickness = 4 * print_head_width; //multiples of 3d printer head diameter -> 1.6
+flywheel_thickness = w_thickness * 2;
+cyl_inner_thickness = w_thickness;
+
+dart_d = ceil((spec_dart_d + 2 * clearance)/print_head_width) * print_head_width;
+echo("calculated dart_d", dart_d);
 dart_r = dart_d/2;
+
+jam_slot_support_len = jam_slot_width * 2;
+
+// Calculate the number of chambers based on chamber count and minimum cuff diameter
+cuff_to_dart_delta = 3 * w_thickness + cyl_inner_thickness + dart_r;
+calc_cyl_radius = desired_cuff_d/2 + cuff_to_dart_delta;
+calc_cyl_deg = 2 * asin((dart_r + w_thickness/2)/calc_cyl_radius);
+calc_ch_count = ceil(360/calc_cyl_deg);  // always round up
+
+chamber_count = max([min_chamber_count, calc_ch_count]);
+echo("minimum chamber count", min_chamber_count);
+echo("final_chamber_count ", chamber_count);
 
 brushless_motor_screw_mount_side = brushless_motor_screw_mount_r * sqrt(2);
 motormount_w = (dart_r + flywheel_thickness) * 2 + brushless_motor_d;
@@ -35,7 +52,6 @@ chamber_d = chamber_r * 2;
 cyl_degrees = 360/chamber_count;
 // chambers only need 1 w_thickness between each other
 cyl_draw_radius = (dart_r + w_thickness/2) / sin(cyl_degrees/2);
-cyl_inner_thickness = w_thickness;
 
 inner_r = cyl_draw_radius - dart_r - w_thickness;
 final_inner = inner_r - cyl_inner_thickness;
@@ -51,6 +67,10 @@ ratchet_t = w_thickness * 1.5;
 // constants for the motor mount and cylinder mount
 cuff_outer_r = final_inner - w_thickness;
 cuff_inner_r = cuff_outer_r - w_thickness;
+
+echo("desired inner cuff diameter ", desired_cuff_d);
+echo("final inner cuff diameter ", cuff_inner_r * 2);
+
 cuff_h = cyl_len + w_thickness *2;
 flange_r = cuff_outer_r + toroid_r;
 bearing_mount_r = race_r - bearing_d/2;
