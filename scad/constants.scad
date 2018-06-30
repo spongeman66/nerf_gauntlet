@@ -1,6 +1,7 @@
 $fn = 128;
 clearance = 0.2;        // wherever parts meet
 print_head_width = 0.4; // 3d printer head diameter
+print_no_support_angle = 50;  // overhang angle that needs no support
 
 //spec_dart_d = 19;     // mega dart diameter
 //d_len = 95;           // mega dart length
@@ -9,7 +10,7 @@ d_len = 72;             // elite dart length
 min_chamber_count = 15; // minimum chambers per cylinder
 desired_cuff_d = 98;    // minimum cuff diameter in mm
 jam_slot_width = 5.6;   // multiple of head diameter
-race1 = 10;             // bottom edge of bearing race position.
+race1 = 15;             // bottom edge of bearing race position.
 bearing_w = 4 + 1;
 bearing_d = 10;
 bearing_inner_d = 5;
@@ -53,6 +54,8 @@ cyl_degrees = 360/chamber_count;
 // chambers only need 1 w_thickness between each other
 cyl_draw_radius = (dart_r + w_thickness/2) / sin(cyl_degrees/2);
 
+echo("Minimum dart length", toroid_r + motormount_w/2 + jam_slot_support_len);
+
 inner_r = cyl_draw_radius - dart_r - w_thickness;
 final_inner = inner_r - cyl_inner_thickness;
 race_r = final_inner + w_thickness;
@@ -79,6 +82,7 @@ mount_w = sqrt(cuff_outer_r * cuff_outer_r - mount_offset * mount_offset) * 2;
 m_thickness = w_thickness * 2;
 mount_alignment = m_thickness + (flywheel_thickness + brushless_motor_h)/2;
 slider_t = cyl_draw_radius - mount_alignment - mount_offset;
+slider_offset = slider_t + brushless_motor_screw_d/2 + w_thickness;
 
 // returns a list of angles for the points of a regular polygon
 function regular_polygon_angles(order) = [for (i=[0:order-1]) i*(360/order)];
@@ -115,7 +119,13 @@ module slide_slot(w, h, l, c=-clearance) {
     }
 }
 
-
-
-
-
+module slide_mount(slider_w, slider_l, slider_t, top=true) {
+    if (top==true) {
+        difference() {
+            cube([slider_w, slider_l, slider_t], center=true);
+            slide_slot(slider_w, slider_l, slider_t);
+        }
+    } else {
+        slide_slot(slider_w, slider_l, slider_t);
+    }
+}
