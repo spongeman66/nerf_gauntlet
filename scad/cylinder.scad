@@ -25,7 +25,7 @@ module chamber(angle=0) {
                             //pointy top to prevent the need for support
                             translate([0, 0, cyl_len/2])
                                 resize([jam_slot_width, 0, 0]) rotate([0, 45, 0])
-                                    cube (jam_slot_width, center=true);
+                                cube (jam_slot_width, center=true);
                         }
 				}
 				// remove the part where the dart will go
@@ -43,9 +43,19 @@ module chamber(angle=0) {
 		// NOTE: change sign of ratchet_angle for cylinder to rotate in other direction
 		ratchet_h = abs(chamber_d * tan(ratchet_angle));
 		ratchet_w = abs(chamber_d / cos(ratchet_angle));// *2; // needs to be long
-        translate([-1 *sign(ratchet_angle) * w_thickness/2, chamber_r, 0])
-            rotate(a=[0, ratchet_angle, 0])
+        union () {
+            translate([-1 *sign(ratchet_angle) * w_thickness/2, chamber_r, 0])
+                rotate(a=[0, ratchet_angle, 0])
                 cube(size=[ratchet_w, w_thickness * 2, ratchet_h], center=true);
+            if (single_chamber==true ) {
+                // if only printing one cylinder for test sizing,
+                // remove the cylinder at the top of the chamber
+                translate([0, dart_r-toroid_r, cyl_len])
+                    rotate([0, 90, 0])
+                    translate([0, 0, -chamber_r])
+                    cylinder(chamber_r *2, r = toroid_r);
+            }
+        }
     }
 }
 
@@ -94,5 +104,9 @@ module final_cylinder() {
 			circle(r = toroid_r, $fn=toroid_r * 5);
     }
 }
-//chamber(-90);
-final_cylinder();
+single_chamber = true;
+if (single_chamber == true) {
+    chamber(-90);
+} else {
+    final_cylinder();
+}
