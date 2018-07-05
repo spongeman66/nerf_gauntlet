@@ -29,8 +29,10 @@ cyl_inner_thickness = w_thickness;
 dart_d = ceil((spec_dart_d + 2 * clearance)/print_head_width) * print_head_width;
 echo("calculated dart_d", dart_d);
 dart_r = dart_d/2;
+toroid_r = dart_d + w_thickness;
 
 jam_slot_support_len = jam_slot_width * 2;
+jam_slot_offset_from_top = (toroid_r + jam_slot_support_len +  jam_slot_width * sqrt(2)/2);
 
 // Calculate the number of chambers based on chamber count and minimum cuff diameter
 cuff_to_dart_delta = 3 * w_thickness + cyl_inner_thickness + dart_r;
@@ -47,14 +49,13 @@ motormount_w = (dart_r + flywheel_thickness) * 2 + brushless_motor_d;
 
 cyl_len = d_len + w_thickness * 2;
 race2 = cyl_len - race1 - bearing_w; // bottom edge of upper bearing
-toroid_r = dart_d + w_thickness;
 chamber_r = dart_r + w_thickness;
 chamber_d = chamber_r * 2;
 cyl_degrees = 360/chamber_count;
 // chambers only need 1 w_thickness between each other
 cyl_draw_radius = (dart_r + w_thickness/2) / sin(cyl_degrees/2);
 
-echo("Minimum dart length", toroid_r + motormount_w/2 + jam_slot_support_len);
+echo("Minimum dart length", toroid_r + motormount_w/2);
 
 inner_r = cyl_draw_radius - dart_r - w_thickness;
 final_inner = inner_r - cyl_inner_thickness;
@@ -127,5 +128,32 @@ module slide_mount(slider_w, slider_l, slider_t, top=true) {
         }
     } else {
         slide_slot(slider_w, slider_l, slider_t);
+    }
+}
+
+module flange(){
+    pipe(w_thickness, cuff_inner_r, flange_r);
+}
+
+module cuff (cuff_angle, height=(cuff_h + motormount_w)) {
+    union(){
+        difference () {
+            difference () {
+                union () {
+                    pipe(height, cuff_inner_r, cuff_outer_r);
+                    flange();
+                }
+                translate([mount_offset + (toroid_r + bearing_d + w_thickness *2)/2, 0, height/2])
+                    cube([toroid_r + bearing_d + w_thickness *2, mount_w, height], center=true);
+            }
+            translate([mount_offset, 0, height])
+                rotate([0, -cuff_angle, 0])
+                translate([0, 0, cyl_draw_radius/2])
+                // just a big block to remove
+                cube([cyl_draw_radius * 4, cyl_draw_radius * 2, cyl_draw_radius], center=true);
+        }
+        translate([cyl_draw_radius, 0, 0])
+            linear_extrude(1)
+            text("X", size=dart_d, halign="center", valign="center");
     }
 }
