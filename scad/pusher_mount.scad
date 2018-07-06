@@ -42,19 +42,19 @@ module connecting_rod(){
 }
 
 module pusher_wheel(){
-    union() {
-        difference() {
-            union() {
-                cylinder(2, d=pusher_wheel_d);
-                cylinder(5, d=pusher_overthrow + post_d);
+        union() {
+            difference() {
+                union() {
+                    cylinder(2, d=pusher_wheel_d);
+                    cylinder(5, d=pusher_overthrow + post_d);
+                }
+                cylinder(connecting_rod_t, d=post_d);
             }
-            cylinder(connecting_rod_t, d=post_d);
+            translate([pusher_overthrow/2, 0, 5])
+                cylinder(connecting_rod_t, d=post_d);
+            translate([connecting_rod_len/2 + pusher_overthrow/2 -post_d/2 -w_thickness*2, 0, connecting_rod_t])
+                connecting_rod();
         }
-        translate([pusher_overthrow/2, 0, 5])
-            cylinder(connecting_rod_t, d=post_d);
-        translate([connecting_rod_len/2 + pusher_overthrow/2 -post_d/2 -w_thickness*2, 0, connecting_rod_t])
-            connecting_rod();
-    }
 }
 
 module bearing_plate() {
@@ -62,7 +62,7 @@ module bearing_plate() {
         union () {
             translate([0, 0, (cuff_h + motormount_w)/2])
                 cube([w_thickness, mount_w, cuff_h + motormount_w], center=true);
-            translate([w_thickness/2 + pusher_motor_d/2 + w_thickness + pusher_motor_pinion_d/2, 0, pusher_overthrow * 2])
+            translate([w_thickness/2 + pusher_motor_d/2 - pusher_motor_pinion_d/2 - 5, 0, pusher_overthrow * 2])
                 rotate([0, 90, 0])
                 pusher_wheel();
             translate([pusher_motor_d/2 + w_thickness, 0, pusher_overthrow * 2 + pusher_wheel_d/2 + w_thickness*2])
