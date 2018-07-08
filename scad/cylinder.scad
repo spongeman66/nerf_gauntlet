@@ -3,7 +3,6 @@ include <constants.scad>
 module chamber(angle=0) {
     jswhalf = jam_slot_width/2.0;
     jswallw = jam_slot_width + 2.0 * w_thickness;
-    js_support_offset = (toroid_r + jam_slot_support_len +  jam_slot_width * sqrt(2)/2);
 
     rotate(angle + 90) difference() {
 		union() {
@@ -19,7 +18,7 @@ module chamber(angle=0) {
 							cube([jswallw, jswhalf, cyl_len], center=true);
 					}
                     // remove the channel for fixing any dart jams
-                    translate([0, -dart_r -jswhalf/2 , cyl_len/2 - js_support_offset])
+                    translate([0, -dart_r -jswhalf/2 , cyl_len/2 - jam_slot_offset_from_top])
                         union() {
                             cube ([jam_slot_width, jam_slot_width, cyl_len], center=true);
                             //pointy top to prevent the need for support

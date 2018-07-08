@@ -34,7 +34,7 @@ module motor_mount(){
             slide_mount(w_thickness * 6, motormount_w, slider_t, top=true);
             
         // flywheel -- remove before printing
-        translate([0, 0, m_thickness])
+        *translate([0, 0, m_thickness])
             union() {
                 difference() {
                     cylinder(flywheel_thickness + brushless_motor_h, r=(brushless_motor_d/2 + flywheel_thickness + dart_r)-w_thickness);

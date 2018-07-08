@@ -1,27 +1,6 @@
 include <constants.scad>
 cuff_angle = atan((motormount_w- w_thickness*2)/(cuff_outer_r * 2 - mount_offset/2));
 
-module flange(){
-    pipe(w_thickness, cuff_inner_r, flange_r);
-}
-module cuff () {
-    difference () {
-        difference () {
-            union () {
-                pipe(cuff_h + motormount_w, cuff_inner_r, cuff_outer_r);
-                flange();
-            }
-            translate([mount_offset + (toroid_r + bearing_d + w_thickness *2)/2, 0, (cuff_h + motormount_w)/2])
-                cube([toroid_r + bearing_d + w_thickness *2, mount_w, cuff_h + motormount_w], center=true);
-        }
-        translate([mount_offset, 0, cuff_h + motormount_w])
-            rotate([0, -cuff_angle, 0])
-                // just a big block to remove
-                translate([0, 0, cyl_draw_radius/2])
-                cube([cyl_draw_radius * 4, cyl_draw_radius * 2, cyl_draw_radius], center=true);
-    }
-}
-
 module bearing_mount(mount_height) {
     mount_x = bearing_d/2 + w_thickness;
     mount_y = w_thickness + max(bearing_inner_d, bearing_d -  w_thickness*2);
@@ -90,7 +69,7 @@ module screw_hole(hole_len=(w_thickness*2)) {
 module printable_cylinder_mount() {
     difference() {
         union () {
-            cuff();
+            cuff(cuff_angle);
             bearing_plate();
         }
         *translate([0, 0, cuff_h + motormount_w + sin(cuff_angle)*cyl_draw_radius/2])
