@@ -2,6 +2,8 @@ include <constants.scad>
 use <cylinder_mount.scad>
 use <motor_mount.scad>
 use <cylinder.scad>
+use <pusher_mount.scad>
+
 union () {
     printable_cylinder_mount();
     translate([cyl_draw_radius, 0, motormount_w/2 + cuff_h])
@@ -9,4 +11,6 @@ union () {
             motor_mounts();
     translate([0, 0, w_thickness + clearance])
         final_cylinder();
+    rotate([180, 0, 0])
+        printable_pusher_mount();
 }
